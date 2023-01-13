@@ -2,6 +2,10 @@ import pygame as pg
 
 class Screen:
 
+    """
+    Screen class represent all things about screen
+    """
+
     SCREEN_WIDTH = 600
     SCREEN_HEIGHT = 600
     BLACK = 0, 0, 0
@@ -19,26 +23,17 @@ class Screen:
 
 
     def draw_board(self):
-
         size = self.SQUARE_SIZE
 
-        cnt = 0
         for x in range(1, 9):
             for y in range(1, 9):
-
-                #check if current loop value is even
-                if cnt % 2 == 0:
+                if (x + y) % 2 == 0:
                     pg.draw.rect(self.screen, self.WHITE ,[size*x,size*y,size,size])
                 else:
                      pg.draw.rect(self.screen, self.GREEN, [size*y,size*x,size,size])
-                cnt +=1
-
-            #since theres an even number of squares go back one value
-            cnt-=1
 
         #Add a nice boarder
         pg.draw.rect(self.screen, self.BLACK, [size,size,8*size,8*size],1)
-
         pg.display.update()
 
 

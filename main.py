@@ -1,5 +1,6 @@
-from Board import Board, Screen
 import pygame as pg
+from Board import Board, Screen
+
 
 def main():
     board = Board()
@@ -8,10 +9,10 @@ def main():
     screen.draw_pieces(board.board)
     
     while True:
-
         for event in pg.event.get():
-            if event == pg.QUIT:
+            if event.type == pg.QUIT:
                 break
+
 
 if __name__ == "__main__":
     main()
