@@ -1,7 +1,6 @@
 import pygame as pg
 from Board import Board, Screen
 
-
 def main():
     board = Board()
     screen = Screen()
@@ -13,6 +12,8 @@ def main():
             if event.type == pg.QUIT:
                 break
 
+            if event.type == pg.MOUSEBUTTONDOWN:
+                print(pg.mouse.get_pos())
 
 if __name__ == "__main__":
     main()

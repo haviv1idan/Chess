@@ -1,3 +1,4 @@
+import chess
 import pygame as pg
 
 class Screen:
@@ -8,6 +9,8 @@ class Screen:
 
     SCREEN_WIDTH = 600
     SCREEN_HEIGHT = 600
+    START_BOARD_X = 60
+    START_BOARD_Y = 60
     BLACK = 0, 0, 0
     WHITE = 255, 255, 255
     GREEN = 0, 255, 0
@@ -24,43 +27,76 @@ class Screen:
 
     def draw_board(self):
         size = self.SQUARE_SIZE
+        start_board_x = self.START_BOARD_X
+        start_board_y = self.START_BOARD_Y
 
-        for x in range(1, 9):
-            for y in range(1, 9):
-                if (x + y) % 2 == 0:
-                    pg.draw.rect(self.screen, self.WHITE ,[size*x,size*y,size,size])
+        for row in range(8):
+            for col in range(8):
+                start_square_x = start_board_x + (size * col)
+                start_square_y = start_board_y + (size * row)
+                if (row + col) % 2 == 0:
+                    pg.draw.rect(self.screen, self.WHITE, [start_square_x, start_square_y, size, size])
                 else:
-                     pg.draw.rect(self.screen, self.GREEN, [size*y,size*x,size,size])
+                    pg.draw.rect(self.screen, self.GREEN, [start_square_x, start_square_y, size, size])
 
         #Add a nice boarder
-        pg.draw.rect(self.screen, self.BLACK, [size,size,8*size,8*size],1)
+        pg.draw.rect(self.screen, self.BLACK, [size, size, 8*size, 8*size], 1)
         pg.display.update()
 
 
     def draw_pieces(self, board):
         size = self.SQUARE_SIZE
-        for x in range(1, 9):
-            for y in range(1, 9):
-                if board[x-1][y-1] != '.':
-                    img = pg.image.load(f"images/{board[x-1][y-1]}.png")
-                    self.screen.blit(img, (y * size, x * size))
+        for x in range(8):
+            for y in range(8):
+                if board[x][y] != '.':
+                    img = pg.image.load(f"images/{board[x][y]}.png")
+                    self.screen.blit(img, ((y + 1) * size, (x + 1) * size))
         pg.display.update()
+
 
 class Board():
 
     def __init__(self):
-        return self.generate_board()
+        self.chess_board = chess.Board()
+        self.board = self.convert_fen_to_2d_array()
+        self.locations_board = self.locations_board()
 
-    def generate_board(self):
-        # P, N, B, R, Q or K for white pieces or the lower-case variants for the black pieces.
-        self.board = """r n b q k b n r
-                        p p p p p p p p
-                        . . . . . . . .
-                        . . . . . . . .
-                        . . . . . . . .
-                        . . . . . . . .
-                        P P P P P P P P
-                        R N B Q K B N R """
-        self.board = [row.split(' ') for row in self.board.split('\n')]
-        self.board = [[item for item in row if item != ''] for row in self.board]
-        print(self.board)
+    def convert_fen_to_2d_array(self) -> list:
+        board = self.chess_board.fen().split(' ')[0]
+        split_board = board.split('/')
+        final_board = []
+        for row in split_board:
+            if row[0] == '8': 
+                final_board.append(['.'] * 8)
+            else :
+                board_row = [item for item in row]
+                final_board.append(board_row)
+        
+        return final_board
+
+    def locations_board(self):
+        start_board_x = Screen.START_BOARD_X
+        start_board_y = Screen.START_BOARD_Y
+        size = Screen.SQUARE_SIZE
+        
+        row_indexes = list(range(1, 9))[::-1]
+        col_indexes = list('abcdefgh')
+        locations_board = {}
+        for row in range(8):
+            start_y = start_board_y + (size * row) 
+            for col in range(8):
+                start_x = start_board_x + (size * col)
+                square_value = self.board[row][col]
+                locations_board[(start_x, start_y)] = BoardSquare(start_x, start_y, size, square_value, row_indexes[row], col_indexes[col])
+                print(f"create square: \n  value: {square_value}\n  start_x, start_y= ({start_x}, {start_y})\n  row, col= {row_indexes[row]}, {col_indexes[col]}")
+        return locations_board
+
+class BoardSquare:
+
+    def __init__(self, start_x, start_y, size, value, row, col) -> None:
+        self.start_x = start_x
+        self.start_y = start_y
+        self.square_size = size
+        self.value = value
+        self.row = row
+        self.col = col
