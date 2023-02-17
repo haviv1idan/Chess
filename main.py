@@ -13,7 +13,9 @@ def main():
                 break
 
             if event.type == pg.MOUSEBUTTONDOWN:
-                print(pg.mouse.get_pos())
+                # print(pg.mouse.get_pos())
+                board.get_pos_details(pg.mouse.get_pos())
+
 
 if __name__ == "__main__":
     main()
