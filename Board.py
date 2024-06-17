@@ -1,6 +1,20 @@
 import chess
 import pygame as pg
 
+images_pieces = {
+    'r': 'WR',
+    'n': 'WN',
+    'b': 'WB',
+    'q': 'WQ',
+    'k': 'WK',
+    'p': 'WP',
+    'R': 'BR',
+    'N': 'BN',
+    'B': 'BB',
+    'Q': 'BQ',
+    'K': 'BK',
+    'P': 'BP',
+}
 
 class Screen:
     """
@@ -17,28 +31,46 @@ class Screen:
     RED = 255, 0, 0
     BLUE = 0, 0, 255
     SQUARE_SIZE = 60
+    
+    # Rows indicator start position
+    ROWS_START_POS_X = SQUARE_SIZE // 2
+    ROWS_START_POS_Y = SQUARE_SIZE + SQUARE_SIZE // 3
+
+    # Columns indicator start position
+    COLS_START_POS_X = SCREEN_WIDTH - (2 * SQUARE_SIZE) + SQUARE_SIZE // 2
+    COLS_START_POS_Y = SCREEN_WIDTH - SQUARE_SIZE
+
 
     def __init__(self) -> None:
         pg.init()
+        pg.font.init()
+        self.font = pg.font.SysFont('Ariel', 30)
         self.screen = pg.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         self.screen.fill(self.WHITE)
+        self._setup()
 
-    def draw_board(self):
-        size = self.SQUARE_SIZE
-        start_board_x = self.START_BOARD_X
-        start_board_y = self.START_BOARD_Y
+    def _setup(self):
+        self._display_row_numbers()
+        self._display_row_numbers()
+        self._display_board()
 
+    def _display_row_numbers(self):
+        """Display the number of rows in the screen"""
+        start_pos = (self.ROWS_START_POS_X, self.ROWS_START_POS_Y)
         for row in range(8):
-            for col in range(8):
-                start_square_x = start_board_x + (size * col)
-                start_square_y = start_board_y + (size * row)
-                if (row + col) % 2 == 0:
-                    pg.draw.rect(self.screen, self.WHITE, [start_square_x, start_square_y, size, size])
-                else:
-                    pg.draw.rect(self.screen, self.GREEN, [start_square_x, start_square_y, size, size])
+            text_surface = self.font.render(str(row + 1), False, (0, 0, 0))
+            self.screen.blit(text_surface, (start_pos[0], start_pos[1] + row * self.SQUARE_SIZE))
 
-        # Add a nice boarder
-        pg.draw.rect(self.screen, self.BLACK, [size, size, 8 * size, 8 * size], 1)
+    def _display_cols_letters(self):
+        """Display the letters of files in the screen"""
+        start_pos = (self.COLS_START_POS_X, self.COLS_START_POS_Y)
+        for index, col in enumerate('abcdefgh'):
+            text_surface = self.font.render(col, False, (0, 0, 0))
+            self.screen.blit(text_surface, (start_pos[0] - index * self.SQUARE_SIZE, start_pos[1]))
+
+    def _display_board(self):
+        background_image = pg.image.load("images/board.png")
+        self.screen.blit(background_image, (self.SQUARE_SIZE, self.SQUARE_SIZE))
         pg.display.update()
 
     def draw_pieces(self, board):
@@ -46,7 +78,8 @@ class Screen:
         for x in range(8):
             for y in range(8):
                 if board[x][y] != '.':
-                    img = pg.image.load(f"images/{board[x][y]}.png")
+                    piece_img_name = images_pieces[board[x][y]]
+                    img = pg.image.load(f"images/{piece_img_name}.png")
                     self.screen.blit(img, ((y + 1) * size, (x + 1) * size))
         pg.display.update()
 
