@@ -1,3 +1,4 @@
+import logging
 import chess
 import pygame as pg
 
@@ -44,14 +45,15 @@ class Screen:
     def __init__(self) -> None:
         pg.init()
         pg.font.init()
+        self._logger = logging.getLogger(__name__)
         self.font = pg.font.SysFont('Ariel', 30)
         self.screen = pg.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-        self.screen.fill(self.WHITE)
-        self._setup()
+        self.setup()
 
-    def _setup(self):
+    def setup(self):
+        self.screen.fill(self.WHITE)
         self._display_row_numbers()
-        self._display_row_numbers()
+        self._display_col_letters()
         self._display_board()
 
     def _display_row_numbers(self):
@@ -61,7 +63,7 @@ class Screen:
             text_surface = self.font.render(str(row + 1), False, (0, 0, 0))
             self.screen.blit(text_surface, (start_pos[0], start_pos[1] + row * self.SQUARE_SIZE))
 
-    def _display_cols_letters(self):
+    def _display_col_letters(self):
         """Display the letters of files in the screen"""
         start_pos = (self.COLS_START_POS_X, self.COLS_START_POS_Y)
         for index, col in enumerate('abcdefgh'):
@@ -83,12 +85,21 @@ class Screen:
                     self.screen.blit(img, ((y + 1) * size, (x + 1) * size))
         pg.display.update()
 
+    def draw_circle(self, pos: tuple):
+        pg.draw.circle(self.screen, self.BLUE, pos, 20, 3)
+        pg.display.update()
 
 class Board:
 
-    def __init__(self):
-        self.chess_rows = list("abcdefgh")
-        self.chess_cols = list(range(8, 0, -1))
+    def __init__(self, default: bool = True):
+        self._logger = logging.getLogger(__name__)
+        if default:
+            self.rows_order = list(range(1, 9))
+            self.cols_order = list('hgfedcba')
+        else:
+            self.rows_order = list(range(1, 9))[::-1]
+            self.cols_order = list('hgfedcba')[::-1]
+
         self.chess_board = chess.Board()
         self.board = self.convert_fen_to_2d_array()
         self.locations_board = self.locations_board()
@@ -98,7 +109,7 @@ class Board:
         split_board = board.split('/')
         final_board = []
         for row in split_board:
-            if row[0] == '8':
+            if row == '8':
                 final_board.append(['.'] * 8)
             else:
                 board_row = [item for item in row]
@@ -111,27 +122,25 @@ class Board:
         start_board_y = Screen.START_BOARD_Y
         size = Screen.SQUARE_SIZE
 
-        row_indexes = list(range(1, 9))[::-1]
-        col_indexes = list('abcdefgh')
         locations_board = {}
         for row in range(8):
             start_y = start_board_y + (size * row)
             for col in range(8):
                 start_x = start_board_x + (size * col)
                 square_value = self.board[row][col]
-                locations_board[(start_x, start_y)] = BoardSquare(start_x, start_y, square_value, row_indexes[row], col_indexes[col])
-                print(f"create square: \n  "
+                locations_board[(start_x, start_y)] = BoardSquare(start_x, start_y, square_value, self.rows_order[row], self.cols_order[col])
+                self._logger.info(f"create square: \n  "
                       f"value: {square_value}\n  "
                       f"start_x, start_y= ({start_x}, {start_y})\n"
-                      f"row, col= {row_indexes[row]}, {col_indexes[col]}")
+                      f"row, col= {self.rows_order[row]}, {self.cols_order[col]}")
         return locations_board
 
     def get_pos_details(self, pos: tuple):
         x, y = pos
         square_size = Screen.SQUARE_SIZE
-        row = self.chess_cols[(y // square_size) - 1]
-        col = self.chess_rows[(x // square_size) - 1]
-        print(f"x: {x}, y: {y}, row: {row}, col: {col}")
+        row = self.rows_order[(y // square_size) - 1]
+        col = self.cols_order[(x // square_size) - 1]
+        self._logger.info(f"x: {x}, y: {y}, row: {row}, col: {col}")
 
 
 class BoardSquare:
@@ -142,3 +151,4 @@ class BoardSquare:
         self.value = value
         self.row = row
         self.col = col
+    
