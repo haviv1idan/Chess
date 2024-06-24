@@ -2,7 +2,7 @@ import logging
 import chess
 
 from chess import Move, InvalidMoveError
-from consts import SQUARE_SIZE, DEFAULT_COLS_ORDER ,DEFAULT_ROWS_ORDER, MoveCode
+from consts import SQUARE_SIZE, DEFAULT_COLS_ORDER ,DEFAULT_ROWS_ORDER
 
 class Board:
 
@@ -14,32 +14,29 @@ class Board:
         self.rows_order = DEFAULT_ROWS_ORDER[::-1] if not default else DEFAULT_ROWS_ORDER
 
 
-    def make_move(self, move: Move) -> int:
+    def make_move(self, move: Move) -> bool:
         """validate move and execute if move is valid
 
         Args:
             move (Move): Move information
 
         Returns:
-            int: Enum const of move code
+            bool: is move succeed or not
         """
         legal_moves = self.chess_board.legal_moves
         try:
             chess_move = move.from_uci(move.uci())
         except InvalidMoveError as e:
             self._logger.error(f"move: {move.uci()} isn't valid")
-            return MoveCode.NO_VALID
+            return False
 
         if chess_move not in legal_moves:
             self._logger.error(f"move: {chess_move.uci()} isn't in legal moves")
-            return MoveCode.NO_VALID
+            return False
 
         self.chess_board.push(move)
-        if self.chess_board.is_checkmate():
-            return MoveCode.CHECKMATE
-        
         self.convert_fen_to_2d_array()
-        return MoveCode.VALID
+        return True
 
 
     def convert_fen_to_2d_array(self) -> None:

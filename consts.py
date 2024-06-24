@@ -1,10 +1,4 @@
 from os import path
-from enum import Enum
-
-class MoveCode(Enum):
-    VALID = 0
-    CHECKMATE = 1
-    NO_VALID = 2
 
 
 IMAGES_FOLDER_PATH = path.join('images')

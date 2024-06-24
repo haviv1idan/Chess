@@ -5,7 +5,7 @@ from argparse import ArgumentParser, BooleanOptionalAction
 from board import Board
 from screen import Screen
 from consts import MoveCode
-from chess import Move, Square, parse_square
+from chess import Move, Square, parse_square, Outcome, WHITE, Termination
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +51,19 @@ def main(debug=False, default=True):
                 # detect second mouse click (end of move)
                 if not flag_clicked:
                     move = Move(start_square, parse_square(chess_pos))
-                    code = board.make_move(move)
-                    if code is MoveCode.CHECKMATE:
-                        logger.info("game end by checkmate")
-                        return 
+                    is_valid = board.make_move(move)
+                    if not is_valid:
+                        if board.chess_board.is_checkmate():
+                            logger.info("game end by checkmate")
+                            winner = board.chess_board.outcome().winner
+                            logger.info(f"game winner is {'white' if winner is WHITE else 'black'}")
+                            return 
+                        
+                        if board.chess_board.is_stalemate():
+                            logger.info("game end by stalemate")
+                            result = board.chess_board.outcome().result
+                            logger.info(f"game result: {result}")
+                            return 
 
                     logger.info(board.chess_board.move_stack)
                     screen.setup()
