@@ -1,4 +1,11 @@
 from os import path
+from enum import Enum
+
+class MoveCode(Enum):
+    VALID = 0
+    CHECKMATE = 1
+    NO_VALID = 2
+
 
 IMAGES_FOLDER_PATH = path.join('images')
 
@@ -48,3 +55,4 @@ BLUE = 0, 0, 255
 # Rows and Cols default orders
 DEFAULT_ROWS_ORDER = list('87654321')
 DEFAULT_COLS_ORDER = list('abcdefgh')
+

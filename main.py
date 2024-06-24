@@ -4,7 +4,8 @@ import logging
 from argparse import ArgumentParser, BooleanOptionalAction
 from board import Board
 from screen import Screen
-from move import Move
+from consts import MoveCode
+from chess import Move, Square, parse_square
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ def main(debug=False, default=True):
     screen.draw_pieces(board.board)
 
     flag_clicked = False
-    move: Move = Move()
+    start_square: Square = None
 
     while True:
 
@@ -40,21 +41,27 @@ def main(debug=False, default=True):
                 logger.info(f"flag_clicked after: {flag_clicked}")
 
                 # print(pg.mouse.get_pos())
-                chess_pos: tuple = board.get_pos_details(pg.mouse.get_pos())
+                chess_pos: str = board.get_pos_details(pg.mouse.get_pos())
                 screen.draw_circle(pos=pg.mouse.get_pos())
 
                 # detect first mouse click (start of move)
                 if flag_clicked:
-                    move.start_pos = chess_pos
+                    start_square = parse_square(chess_pos)
 
                 # detect second mouse click (end of move)
                 if not flag_clicked:
-                    move.end_pos = chess_pos
-                    board.make_move(move)
+                    move = Move(start_square, parse_square(chess_pos))
+                    code = board.make_move(move)
+                    if code is MoveCode.CHECKMATE:
+                        logger.info("game end by checkmate")
+                        return 
+
                     logger.info(board.chess_board.move_stack)
                     screen.setup()
                     screen.draw_pieces(board.board)
-                    move = Move()
+                    move = None
+
+                pg.display.update()
 
 
 if __name__ == "__main__":

@@ -1,9 +1,8 @@
 import logging
 import chess
 
-from move import Move
-
-from consts import SQUARE_SIZE, DEFAULT_COLS_ORDER ,DEFAULT_ROWS_ORDER
+from chess import Move, InvalidMoveError
+from consts import SQUARE_SIZE, DEFAULT_COLS_ORDER ,DEFAULT_ROWS_ORDER, MoveCode
 
 class Board:
 
@@ -13,36 +12,40 @@ class Board:
         self.convert_fen_to_2d_array()
         self.cols_order = DEFAULT_COLS_ORDER[::-1] if not default else DEFAULT_COLS_ORDER
         self.rows_order = DEFAULT_ROWS_ORDER[::-1] if not default else DEFAULT_ROWS_ORDER
-        # self.locations = self.locations_board()
 
-    def make_move(self, move: Move) -> None:
-        self.chess_board.push_san(move.uci_move())
+
+    def make_move(self, move: Move) -> int:
+        """validate move and execute if move is valid
+
+        Args:
+            move (Move): Move information
+
+        Returns:
+            int: Enum const of move code
+        """
+        legal_moves = self.chess_board.legal_moves
+        try:
+            chess_move = move.from_uci(move.uci())
+        except InvalidMoveError as e:
+            self._logger.error(f"move: {move.uci()} isn't valid")
+            return MoveCode.NO_VALID
+
+        if chess_move not in legal_moves:
+            self._logger.error(f"move: {chess_move.uci()} isn't in legal moves")
+            return MoveCode.NO_VALID
+
+        self.chess_board.push(move)
+        if self.chess_board.is_checkmate():
+            return MoveCode.CHECKMATE
+        
         self.convert_fen_to_2d_array()
-        # self.locations = self.locations_board()
+        return MoveCode.VALID
+
 
     def convert_fen_to_2d_array(self) -> None:
         self.board = self.chess_board.__str__()
         self.board = self.board.split('\n')
         self.board = [row.replace(' ', '') for row in self.board]
-
-
-    # def locations_board(self):
-    #     start_board_x = START_BOARD_X
-    #     start_board_y = START_BOARD_Y
-    #     size = SQUARE_SIZE
-
-    #     locations_board_dict = {}
-    #     for row in range(8):
-    #         start_y = start_board_y + (size * row)
-    #         for col in range(8):
-    #             start_x = start_board_x + (size * col)
-    #             square_value = self.board[row][col]
-    #             locations_board_dict[(start_x, start_y)] = BoardSquare(start_x, start_y, square_value, self.rows_order[row], self.cols_order[col])
-    #             self._logger.info(f"create square: \n  "
-    #                   f"value: {square_value}\n  "
-    #                   f"start_x, start_y= ({start_x}, {start_y})\n"
-    #                   f"row, col= {self.rows_order[row]}, {self.cols_order[col]}")
-    #     return locations_board_dict
 
     def get_pos_details(self, pos: tuple) -> str:
         """
