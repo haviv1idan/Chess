@@ -7,10 +7,27 @@ class BoardObject:
 
     def __init__(self, default: bool = True):
         self._logger = logging.getLogger(__name__)
-        self.chess_board = Board()
-        self.convert_fen_to_2d_array()
+        self._default = default
+        self._chess_board = Board()
+        self._display_board = []
         self.cols_order = DEFAULT_COLS_ORDER[::-1] if not default else DEFAULT_COLS_ORDER
         self.rows_order = DEFAULT_ROWS_ORDER[::-1] if not default else DEFAULT_ROWS_ORDER
+        self.update_display_board()
+
+    @property
+    def chess_board(self):
+        return self._chess_board
+    
+    @property
+    def display_board(self):
+        return self._display_board
+    
+    def update_display_board(self):
+        board_fen: list[str] = self._chess_board.__str__().replace(' ', '').split('\n')
+        if not self._default:
+            self._display_board = [row[::-1] for row in board_fen[::-1]]
+        else:
+            self._display_board = board_fen
 
 
     def make_move(self, move: Move) -> bool:
@@ -25,7 +42,7 @@ class BoardObject:
         legal_moves = self.chess_board.legal_moves
         try:
             chess_move = move.from_uci(move.uci())
-        except InvalidMoveError as e:
+        except InvalidMoveError:
             self._logger.error(f"move: {move.uci()} isn't valid")
             return False
 
@@ -34,14 +51,8 @@ class BoardObject:
             return False
 
         self.chess_board.push(move)
-        self.convert_fen_to_2d_array()
+        self.update_display_board()
         return True
-
-
-    def convert_fen_to_2d_array(self) -> None:
-        self.board = self.chess_board.__str__()
-        self.board = self.board.split('\n')
-        self.board = [row.replace(' ', '') for row in self.board]
 
     def get_pos_details(self, pos: tuple) -> str:
         """
@@ -55,18 +66,11 @@ class BoardObject:
         """
         x, y = pos
         square_size = SQUARE_SIZE
-        row = self.rows_order[(y // square_size) - 1]
-        col = self.cols_order[(x // square_size) - 1]
+        try:
+            row = self.rows_order[(y // square_size) - 1]
+            col = self.cols_order[(x // square_size) - 1]
+        except IndexError:
+            return None
+
         self._logger.info(f"x: {x}, y: {y}, row: {row}, col: {col}")
         return col + row
-
-
-class BoardSquare:
-
-    def __init__(self, start_x, start_y, value, row, col) -> None:
-        self.start_x = start_x
-        self.start_y = start_y
-        self.value = value
-        self.row = row
-        self.col = col
-

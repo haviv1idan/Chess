@@ -11,12 +11,12 @@ class GameObject:
 
     def __init__(self, debug_mode=False, default_board=True):
         self._logger = get_logger(__class__.__name__)
-        self._game = Game()
-        self._headers = NotImplemented
-        self._board = BoardObject()
-        self._screen = Screen()
         self._debug_mode = debug_mode
         self._default_board = default_board
+        self._game = Game()
+        self._headers = NotImplemented
+        self._board = BoardObject(self._default_board)
+        self._screen = Screen(self._default_board)
         self._node = None
         self._start_sqaure: Square = None
         self._end_square: Square = None
@@ -29,7 +29,7 @@ class GameObject:
     @headers.setter
     def headers(self, headers_dict: dict) -> None:
         for key, value in headers_dict.items():
-            self.game.headers[key] = value
+            self._game.headers[key] = value
 
     @property
     def board(self):
@@ -41,7 +41,7 @@ class GameObject:
     
     def start_game(self) -> None:
         self._screen.setup()
-        self.screen.draw_pieces(self._board.board)
+        self._screen.draw_pieces(self._board.display_board)
 
 
         while True:
@@ -62,7 +62,9 @@ class GameObject:
                         self.make_move()
 
                     self._screen.setup()
-                    self._screen.draw_pieces(self._board.board)
+                    self._screen.draw_pieces(self._board.display_board)
+                    self._logger.info(f"{self._game}")
+
 
                     if self.check_terminations():
                         pg.quit()
@@ -107,8 +109,13 @@ class GameObject:
 
                 
     def mouse_down_triggered(self):
+        pos: str | None = self._board.get_pos_details(pg.mouse.get_pos())
+
+        if not pos:
+            return
+        
         # Get start square
-        square: Square = parse_square(self._board.get_pos_details(pg.mouse.get_pos()))
+        square: Square = parse_square(pos)
         self._logger.info(f"{square= }")
 
         if self._start_sqaure is None:
