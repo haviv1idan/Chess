@@ -1,14 +1,13 @@
 import logging
-import chess
 
-from chess import Move, InvalidMoveError
+from chess import Board, Move, InvalidMoveError
 from consts import SQUARE_SIZE, DEFAULT_COLS_ORDER ,DEFAULT_ROWS_ORDER
 
-class Board:
+class BoardObject:
 
     def __init__(self, default: bool = True):
         self._logger = logging.getLogger(__name__)
-        self.chess_board = chess.Board()
+        self.chess_board = Board()
         self.convert_fen_to_2d_array()
         self.cols_order = DEFAULT_COLS_ORDER[::-1] if not default else DEFAULT_COLS_ORDER
         self.rows_order = DEFAULT_ROWS_ORDER[::-1] if not default else DEFAULT_ROWS_ORDER
@@ -52,7 +51,7 @@ class Board:
             pos (tuple): (x, y) screen location
 
         Returns:
-            tuple: str(col+row) chess board location
+            str: (col+row) chess board location
         """
         x, y = pos
         square_size = SQUARE_SIZE

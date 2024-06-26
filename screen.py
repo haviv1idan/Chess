@@ -26,7 +26,8 @@ class Screen:
         self.rows_order = DEFAULT_ROWS_ORDER[::-1] if not default else DEFAULT_ROWS_ORDER
         self.setup()
 
-    def setup(self):
+    def setup(self) -> None:
+        """Setup the screen background, rows and columns and board image background"""
         self.screen.fill(WHITE)
         self._display_row_numbers()
         self._display_col_letters()
@@ -63,6 +64,7 @@ class Screen:
         pg.display.update()
 
     def draw_pieces(self, board):
+        """Draw the board pieces"""
         size = SQUARE_SIZE
 
         # x represent the row index in board 2D array
