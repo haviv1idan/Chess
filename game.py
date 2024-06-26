@@ -98,11 +98,12 @@ class GameObject:
         if not is_succeed:
             self._start_sqaure = self._end_square = None
             self._logger.info(f"reseting squares, {self._start_sqaure= }, {self._end_square= }")
-        
-        if not self._node:
-            self._node = self._game.add_variation(move.from_uci(move.uci()))
-        else:
-            self._node = self._node.add_variation(move.from_uci(move.uci()))
+
+        else:    
+            if not self._node:
+                self._node = self._game.add_variation(move.from_uci(move.uci()))
+            else:
+                self._node = self._node.add_variation(move.from_uci(move.uci()))
 
         self._start_sqaure = self._end_square = None
         self._logger.info(f"{self._game= }")

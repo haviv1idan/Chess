@@ -40,12 +40,14 @@ class BoardObject:
             bool: is move succeed or not
         """
         legal_moves = self.chess_board.legal_moves
+        self._logger.info(f'legal moves: {legal_moves}')
+        
         try:
             chess_move = move.from_uci(move.uci())
         except InvalidMoveError:
             self._logger.error(f"move: {move.uci()} isn't valid")
             return False
-
+        
         if chess_move not in legal_moves:
             self._logger.error(f"move: {chess_move.uci()} isn't in legal moves")
             return False
