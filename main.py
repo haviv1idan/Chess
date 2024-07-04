@@ -8,6 +8,7 @@ logger = get_logger(__name__)
 def main(debug=False, default=True):
     game = GameObject(debug_mode=debug, default_board=default)
     game.start_game()
+    print(game._game, file=open('games.pgn', 'a'), end="\n\n")
 
 
 if __name__ == "__main__":

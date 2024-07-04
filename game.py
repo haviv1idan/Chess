@@ -63,7 +63,7 @@ class GameObject:
 
                     self._screen.setup()
                     self._screen.draw_pieces(self._board.display_board)
-                    self._logger.info(f"{self._game}")
+                    self._logger.info(f"{self._game= }")
 
 
                     if self.check_terminations():
@@ -71,6 +71,7 @@ class GameObject:
                         return
                 
                 pg.display.update()
+    
 
 
     def check_terminations(self) -> bool:

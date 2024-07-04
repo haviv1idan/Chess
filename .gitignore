@@ -9,3 +9,5 @@ ruff
 
 # log file
 app.log
+
+games.pgn
