@@ -28,6 +28,7 @@ class Screen:
 
     def setup(self) -> None:
         """Setup the screen background, rows and columns and board image background"""
+        self._logger.info("Display setup")
         self.screen.fill(WHITE)
         self._display_row_numbers()
         self._display_col_letters()
@@ -35,6 +36,7 @@ class Screen:
 
     def _display_row_numbers(self):
         """Display the number of rows in the screen"""
+        self._logger.info("Display row numbers")
         start_pos = (ROWS_START_POS_X, ROWS_START_POS_Y)
         for index, row in enumerate(self.rows_order):
             text_surface = self.font.render(str(row), False, (0, 0, 0))
@@ -47,6 +49,7 @@ class Screen:
 
     def _display_col_letters(self):
         """Display the letters of files in the screen"""
+        self._logger.info("Display cols letters")
         start_pos = (COLS_START_POS_X, COLS_START_POS_Y)
         for index, col in enumerate(self.cols_order):
             text_surface = self.font.render(col, False, (0, 0, 0))
@@ -59,12 +62,14 @@ class Screen:
 
     def _display_board(self):
         """Display the board"""
+        self._logger.info("Display board background")
         background_image = pg.image.load(BOARD_IMAGE_PATH)
         self.screen.blit(background_image, (SQUARE_SIZE, SQUARE_SIZE))
-        pg.display.update()
+
 
     def draw_pieces(self, board):
         """Draw the board pieces"""
+        self._logger.info("Display pieces")
         size = SQUARE_SIZE
 
         # x represent the row index in board 2D array
@@ -79,7 +84,6 @@ class Screen:
                     img = pg.image.load(piece_img_path)
                     self.screen.blit(img, ((y + 1) * size, (x + 1) * size))
 
-        pg.display.update()
 
     def draw_circle(self, pos: tuple):
         pg.draw.circle(self.screen, BLUE, pos, 20, 3)

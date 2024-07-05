@@ -30,7 +30,7 @@ class BoardObject:
             self._display_board = board_fen
 
 
-    def make_move(self, move: Move) -> bool:
+    def validate_move(self, move: Move) -> bool:
         """validate move and execute if move is valid
 
         Args:
@@ -52,8 +52,6 @@ class BoardObject:
             self._logger.error(f"move: {chess_move.uci()} isn't in legal moves")
             return False
 
-        self.chess_board.push(move)
-        self.update_display_board()
         return True
 
     def get_pos_details(self, pos: tuple) -> str:
