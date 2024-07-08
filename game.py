@@ -1,9 +1,10 @@
 import pygame as pg
 
 from chess.pgn import Game
-from chess import parse_square, Square, Move, WHITE
+from chess import parse_square, Square, Move, WHITE, BLACK
 from board import BoardObject
 from screen import Screen
+from bot import BotObject
 from logging_config import get_logger
 
 
@@ -20,7 +21,7 @@ class GameObject:
         self._node = None
         self._start_sqaure: Square = None
         self._end_square: Square = None
-
+        self.player_color = WHITE if default_board else BLACK
 
     @property
     def headers(self):
@@ -39,12 +40,28 @@ class GameObject:
     def screen(self):
         return self._screen
     
-    def start_game(self) -> None:
+    def refresh(self):
+        self._logger.info("Refreshing screen")
+        self._board.update_display_board()
         self._screen.setup()
         self._screen.draw_pieces(self._board.display_board)
+        pg.display.update()
+    
+    def start_game(self) -> None:
+        bot_player = BotObject()
+        self._screen.setup()
+        self._screen.draw_pieces(self._board.display_board)
+        pg.display.update()
 
 
         while True:
+
+            if self._board.chess_board.turn != self.player_color:
+                bot_move = bot_player.make_move(self._board.chess_board.legal_moves)
+                self._logger.info(f"{bot_move= }")
+                self._add_move_to_game_node(bot_move)
+                self.refresh()
+
 
             for event in pg.event.get():
                 
@@ -60,18 +77,14 @@ class GameObject:
 
                     if self._start_sqaure and self._end_square:
                         self.make_move()
+                        self.refresh()
 
-                    self._screen.setup()
-                    self._screen.draw_pieces(self._board.display_board)
                     self._logger.info(f"{self._game= }")
 
 
                     if self.check_terminations():
                         pg.quit()
                         return
-                
-                pg.display.update()
-    
 
 
     def check_terminations(self) -> bool:
@@ -93,7 +106,7 @@ class GameObject:
         move = Move(self._start_sqaure, self._end_square)
         self._logger.info(f"{move= }")
 
-        is_succeed = self._board.make_move(move)
+        is_succeed = self._board.validate_move(move)
         self._logger.info(f"{is_succeed= }")
 
         if not is_succeed:
@@ -101,12 +114,19 @@ class GameObject:
             self._logger.info(f"reseting squares, {self._start_sqaure= }, {self._end_square= }")
 
         else:    
-            if not self._node:
-                self._node = self._game.add_variation(move.from_uci(move.uci()))
-            else:
-                self._node = self._node.add_variation(move.from_uci(move.uci()))
+            self._add_move_to_game_node(move)
 
         self._start_sqaure = self._end_square = None
+
+
+    def _add_move_to_game_node(self, move: Move) -> None:
+        self._board.chess_board.push(move)
+
+        if not self._node:
+            self._node = self._game.add_variation(move.from_uci(move.uci()))
+        else:
+            self._node = self._node.add_variation(move.from_uci(move.uci()))
+        
         self._logger.info(f"{self._game= }")
 
                 
