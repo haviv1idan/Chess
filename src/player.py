@@ -1,12 +1,7 @@
-from enum import Enum
-
-class PlayerColor(Enum):
-    WHITE = 0
-    BLACK = 1
-
+from utils import Color
 
 class Player:
 
-    def __init__(self, name: str, color: Enum):
+    def __init__(self, name: str, color: Color = None):
         self.name = name
         self.color = color

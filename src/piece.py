@@ -1,20 +1,13 @@
 from src.move import Move
 from abc import abstractmethod
-from enum import Enum
-
-class PieceType(Enum):
-    PAWN = 1
-    KNIGHT = 2
-    BISHOP = 3
-    ROOK = 4
-    QUEEN = 5
-    KING = 6
+from src.utils import PieceType, Color
 
 
 class Piece:
 
-    def __init__(self, type: Enum):
+    def __init__(self, type: PieceType, color: Color):
         self.type = type
+        self.color = color
 
     @abstractmethod
     def move(self, src: Move, dst: Move):
@@ -23,53 +16,67 @@ class Piece:
 
 class Pawn(Piece):
 
-    def __init__(self):
-        super(Pawn, self).__init__(PieceType.PAWN)
-
-    def move(self, src: Move, dst: Move):
-        pass
-
-
-class Knight(Piece):
-
-    def __init__(self):
-        super(Knight, self).__init__(PieceType.KNIGHT)
-
-    def move(self, src: Move, dst: Move):
-        pass
-
-
-class Bishop(Piece):
-
-    def __init__(self):
-        super(Bishop, self).__init__(PieceType.BISHOP)
+    def __init__(self, color: Color):
+        super(Pawn, self).__init__(PieceType.PAWN, color)
 
     def move(self, src: Move, dst: Move):
         pass
     
+    def __str__(self):
+        return 'p' if self.color == Color.BLACK else 'P'
+
+class Knight(Piece):
+
+    def __init__(self, color: Color):
+        super(Knight, self).__init__(PieceType.KNIGHT, color)
+
+    def move(self, src: Move, dst: Move):
+        pass
+
+    def __str__(self):
+        return 'n' if self.color == Color.BLACK else 'N'
+
+class Bishop(Piece):
+
+    def __init__(self, color: Color):
+        super(Bishop, self).__init__(PieceType.BISHOP, color)
+
+    def move(self, src: Move, dst: Move):
+        pass
+
+    def __str__(self):
+        return 'b' if self.color == Color.BLACK else 'B'
+    
 
 class Rook(Piece):
 
-    def __init__(self):
-        super(Rook, self).__init__(PieceType.ROOK)
+    def __init__(self, color: Color):
+        super(Rook, self).__init__(PieceType.ROOK, color)
 
     def move(self, src: Move, dst: Move):
         pass
 
+    def __str__(self):
+        return 'r' if self.color == Color.BLACK else 'R'
 
 class Queen(Piece):
 
-    def __init__(self):
-        super(Queen, self).__init__(PieceType.QUEEN)
+    def __init__(self, color: Color):
+        super(Queen, self).__init__(PieceType.QUEEN, color)
 
     def move(self, src: Move, dst: Move):
         pass
 
+    def __str__(self):
+        return 'q' if self.color == Color.BLACK else 'Q'
 
 class King(Piece):
 
-    def __init__(self):
-        super(King, self).__init__(PieceType.KING)
+    def __init__(self, color: Color):
+        super(King, self).__init__(PieceType.KING, color)
 
     def move(self, src: Move, dst: Move):
         pass
+
+    def __str__(self):
+        return 'k' if self.color == Color.BLACK else 'K'
