@@ -1,4 +1,4 @@
-from utils import Color
+from src.utils import Color
 
 class Player:
 
