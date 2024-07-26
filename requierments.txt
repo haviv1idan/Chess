@@ -1,5 +1,2 @@
-chess==1.10.0
-pygame==2.5.2
-ruff==0.4.10
-PyYAML==6.0.1
-numpy==2.0.1
+pytest
+numpy

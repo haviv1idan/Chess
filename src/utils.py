@@ -16,7 +16,7 @@ CHESS_BOARD = [
 ROWS: tuple[int] = (8, 7, 6, 5, 4, 3, 2, 1)
 COLS: tuple[str] = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
 
-class PieceType(Enum):
+class PieceTypeEnum(Enum):
     PAWN = 1
     KNIGHT = 2
     BISHOP = 3
@@ -24,7 +24,7 @@ class PieceType(Enum):
     QUEEN = 5
     KING = 6
 
-class Color(Enum):
+class ColorEnum(Enum):
     WHITE = 0
     BLACK = 1
 
