@@ -1,3 +1,4 @@
+from functools import lru_cache
 from enum import Enum
 
 
@@ -29,6 +30,7 @@ class ColorEnum(Enum):
     BLACK = 1
 
 
+@lru_cache
 def convert_chess_square_to_board_index(chess_square: str) -> tuple[int, int]:
     """convert chess square to board index.
     for example: a8 -> (0,0)
