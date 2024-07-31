@@ -54,9 +54,14 @@ class Pawn(Piece):
         return 'p' if self.color == ColorEnum.BLACK else 'P'
 
     def is_valid_move(self, dest_square: 'Square', board: 'Board') -> bool:
+        possible_moves = self.possible_moves(board)
+
+        if possible_moves == []:
+            self._logger.warning("No possible moves")
+
         return dest_square in self.possible_moves(board)
     
-    def possible_moves(self, board: 'Board') -> list['Square']: 
+    def possible_moves(self, board: 'Board') -> list['Square']:
         
         squares: list['Square'] = []
 
@@ -85,24 +90,60 @@ class Knight(Piece):
 
     def __init__(self, color=ColorEnum):
         super(Knight, self).__init__(PieceTypeEnum.KNIGHT, color)
+        self._logger = get_logger(self.__class__.__name__)
+        self._cordinates = [(-1, 2), (1, 2), (-2, 1), (2, 1), (-2, -1), (2, -1), (-1, -2), (1, -2)]
+
 
     def __str__(self):
         return 'n' if self.color == ColorEnum.BLACK else 'N'
+    
+    def is_valid_move(self, dest_square: 'Square', board: 'Board') -> bool:
+        return dest_square in self.possible_moves(board)
+
+    def possible_moves(self, board: 'Board') -> list['Square']:
+        squares: list['Square'] = []
+        
+        for col, row in self._cordinates:
+            if COLS.index(self.col) + col < 0 or COLS.index(self.col) + col > 7:
+                continue
+
+            if self.row + row <= 0 or self.row + row > 7:
+                continue
+
+            chess_column = COLS[COLS.index(self.col) + col]
+            chess_row = self.row + row
+
+            square: 'Square' = board.get_square(chess_column + str(chess_row))
+            self._logger.info(f"{chess_column= }, {chess_row= }, piece= {square.piece}")
+
+            if square.piece is None or square.piece.color != self.color:
+                squares.append(square)
+
+        self._logger.info(f"possible moves: {[square.__str__() for square in squares]}")
+        return squares
+
+
 
 
 class Bishop(Piece):
 
     def __init__(self, color: ColorEnum):
         super(Bishop, self).__init__(PieceTypeEnum.BISHOP, color)
+        self._logger = get_logger(self.__class__.__name__)
 
     def __str__(self):
         return 'b' if self.color == ColorEnum.BLACK else 'B'
+    
+    def possible_moves(self, board: 'Board') -> list['Square']:
+        
+        return []
     
 
 class Rook(Piece):
 
     def __init__(self, color: ColorEnum):
         super(Rook, self).__init__(PieceTypeEnum.ROOK, color)
+        self._logger = get_logger(self.__class__.__name__)
 
     def __str__(self):
         return 'r' if self.color == ColorEnum.BLACK else 'R'
@@ -112,6 +153,7 @@ class Queen(Piece):
 
     def __init__(self, color: ColorEnum):
         super(Queen, self).__init__(PieceTypeEnum.QUEEN, color)
+        self._logger = get_logger(self.__class__.__name__)
 
     def __str__(self):
         return 'q' if self.color == ColorEnum.BLACK else 'Q'
@@ -121,51 +163,7 @@ class King(Piece):
 
     def __init__(self, color: ColorEnum):
         super(King, self).__init__(PieceTypeEnum.KING, color)
-
-    def __str__(self):
-        return 'k' if self.color == ColorEnum.BLACK else 'K'
-
-
-class Knight(Piece):
-
-    def __init__(self, color: ColorEnum):
-        super(Knight, self).__init__(PieceTypeEnum.KNIGHT, color)
-
-    def __str__(self):
-        return 'n' if self.color == ColorEnum.BLACK else 'N'
-
-
-class Bishop(Piece):
-
-    def __init__(self, color: ColorEnum):
-        super(Bishop, self).__init__(PieceTypeEnum.BISHOP, color)
-
-    def __str__(self):
-        return 'b' if self.color == ColorEnum.BLACK else 'B'
-    
-
-class Rook(Piece):
-
-    def __init__(self, color: ColorEnum):
-        super(Rook, self).__init__(PieceTypeEnum.ROOK, color)
-
-    def __str__(self):
-        return 'r' if self.color == ColorEnum.BLACK else 'R'
-
-
-class Queen(Piece):
-
-    def __init__(self, color: ColorEnum):
-        super(Queen, self).__init__(PieceTypeEnum.QUEEN, color)
-
-    def __str__(self):
-        return 'q' if self.color == ColorEnum.BLACK else 'Q'
-
-
-class King(Piece):
-
-    def __init__(self, color: ColorEnum):
-        super(King, self).__init__(PieceTypeEnum.KING, color)
+        self._logger = get_logger(self.__class__.__name__)
 
     def __str__(self):
         return 'k' if self.color == ColorEnum.BLACK else 'K'

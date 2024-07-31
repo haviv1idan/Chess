@@ -132,8 +132,8 @@ class Board:
         ]
 
     def move(self, src_square: str, dest_square: str) -> None:
-        src_square = self.get_square(src_square)
-        dest_square = self.get_square(dest_square)
+        src_square: Square = self.get_square(src_square)
+        dest_square: Square = self.get_square(dest_square)
 
         piece = src_square.piece
 
