@@ -1,10 +1,9 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
-from src import Board, Square
 from src.utils import ColorEnum, PieceTypeEnum, COLS, ROWS, convert_chess_square_to_board_index
 
 if TYPE_CHECKING:
-    from src import Board, Square
+    from src.board import Board, Square
 
 
 class Piece:
@@ -31,87 +30,48 @@ class Pawn(Piece):
 
     def __str__(self):
         return 'p' if self.color == ColorEnum.BLACK else 'P'
-    
-    def is_valid_move(self, dest_square: 'Square', board: 'Board') -> bool:
-        possible_squares_cordinates = {
+
+    def possible_moves(self, board: 'Board') -> list['Square']: 
+        cordinates = {
+            # (column, row)
             ColorEnum.WHITE: [
                 (0, 1),     # one square forward
                 (0, 2),     # two squares forward in case of starting position
-                (1, -1),    # left capture
+                (-1, 1),    # left capture
                 (1, 1),     # right capture
             ],
             ColorEnum.BLACK: [
                 (0, -1),    # one square forward
                 (0, -2),    # two squares forward in case of starting position
-                (-1, 1),    # left capture
-                (-1, -1),   # right capture
+                (-1, -1),   # left capture
+                (1, -1),    # right capture
             ], 
         } 
-        board_row, board_col = convert_chess_square_to_board_index(self.col + str(self.row))
-        for col, row in possible_squares_cordinates[self.color]:
-            if board_col + col == dest_square.col and board_row + row == dest_square.row:
-                return dest_square.piece == None
-            
+        squares: list['Square'] = []
 
+        for column, row in cordinates[self.color]:
+            chess_column = COLS[COLS.index(self.col) + column]
+            chess_row = self.row + row
+            print(f"{chess_column= }, {chess_row= }")
 
-    
+            square: 'Square' = board.get_square(chess_column + str(chess_row))
+            # check capture squares
+            if abs(column) == abs(row) == 1:
+                if not square.piece:
+                    continue
 
-
-    def _check_2_squares_forward(self, square: 'Square', board: 'Board') -> bool:
-        """TODO
-
-        Args:
-            square (Square): _description_
-            board (Board): _description_
-
-        Returns:
-            bool: _description_
-        """
-        # First pawn move can be 2 squares forward
-        dst_square: Square = board.get_square(square.column + str(square.row + 2 if self.color == ColorEnum.WHITE else square.row - 2))
-        return dst_square.piece == None
-
-    
-    def possible_moves(self, square: 'Square', board: 'Board') -> list[str]:
-        """
-        returns a list of all possible moves for a piece in given row and column
-
-        Args:
-            col (str): chess column
-            row (int): chess row
-            board (list[list[Sqaure]]): chess board
-        """      
-        moves: list[str] = []
-
-        if self.color == ColorEnum.WHITE:
-
-            if square.row == 2 and self._check_2_squares_forward(square, board):
-                moves.append(square.column + str(square.row + 2))
-
-            # one square forward                
-            if board.get_square(square.column + str(square.row + 1)).piece == None:
-                moves.append(square.column + str(square.row + 1))
-
-            # check capture
-            if square.column == 'a' and board.get_square('b' + str(square.row + 1)).piece.color == ColorEnum.BLACK:
-                moves.append('b' + str(square.row + 1))
-
-            elif square.column == 'h' and board.get_square('g' + str(square.row + 1)).piece.color == ColorEnum.BLACK:
-                moves.append('g' + str(square.row + 1))
-
+                if square.piece.color != self.color:
+                    squares.append(board.get_square(chess_column + str(chess_row)))
             else:
-                left_column: str = COLS[COLS.index(square.column) - 1]
-                if board.get_square(left_column + str(square.row + 1)).piece.color == ColorEnum.BLACK:
-                    moves.append(left_column + str(square.row + 1))
-                
-                right_column: str = COLS[COLS.index(square.column) + 1]
-                if board.get_square(right_column + str(square.row + 1)).piece.color == ColorEnum.BLACK:
-                    moves.append(right_column + str(square.row + 1))
+                if board.get_square(chess_column + str(chess_row)).piece is None:
+                    squares.append(board.get_square(chess_column + str(chess_row)))
+        
+        print(f"possible moves: {[square.__str__() for square in squares]}")
+        return squares
+    
 
-        else:
-            pass
-
-        return moves
+    def is_valid_move(self, dest_square: 'Square', board: 'Board') -> bool:
+        return dest_square in self.possible_moves(board)
     
 
 class Knight(Piece):

@@ -12,11 +12,11 @@ class Square:
         self.row = row
         self.piece = piece
         if piece:
-            self.piece.chess_col = column
-            self.piece.chess_row = row
+            self.piece.col = column
+            self.piece.row = row
 
     def __str__(self):
-        return f"{self.column= } {self.row= } {self.piece.type= }"
+        return f"{self.column= } {self.row= } self.piece= {self.piece if self.piece else None }"
     
 
 class Board:
