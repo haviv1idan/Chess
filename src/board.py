@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
-from src.utils import ColorEnum
+from src.logging_config import get_logger
+from src.utils import ColorEnum, PieceTypeEnum
 from src.player import Player
 from src.pieces import Piece, Pawn, Rook, Bishop, Knight, Queen, King
     
@@ -22,6 +23,7 @@ class Square:
 class Board:
 
     def __init__(self, w_player: str = None, b_player: str = None):
+        self._logger = get_logger(self.__class__.__name__)
         self._white_player = Player(name=w_player if w_player else 'white_player', color=ColorEnum.WHITE)
         self._white_player = Player(name=b_player if b_player else 'black_player', color=ColorEnum.BLACK)
         self._board: list[list[Square]] = self._setup_board()
@@ -45,7 +47,6 @@ class Board:
             for square in row:
                 pieces_row.append(square.piece.__str__() if square.piece else '')
             
-            print(pieces_row)
             board_str.append(pieces_row)
         
         return board_str
@@ -63,8 +64,8 @@ class Board:
 
 
     def rotate_player_turn(self) -> None:
-        self._player_turn = ColorEnum.BLACK if self._player_turn == ColorEnum.BLACK else ColorEnum.WHITE
-        print(f"Player turn: {self._player_turn}")
+        self._player_turn = ColorEnum.WHITE if self._player_turn == ColorEnum.BLACK else ColorEnum.BLACK
+        self._logger.info(f"Player turn: {self._player_turn}")
 
 
     def possible_moves(self) -> list[str]:
@@ -130,3 +131,28 @@ class Board:
             ]
         ]
 
+    def move(self, src_square: str, dest_square: str) -> None:
+        src_square = self.get_square(src_square)
+        dest_square = self.get_square(dest_square)
+
+        piece = src_square.piece
+
+        if not piece:
+            self._logger.error('No piece')
+            return
+
+        if piece.color != self._player_turn:
+            self._logger.error('wrong color')
+            return
+
+        if not piece.is_valid_move(dest_square, self):
+            self._logger.error('ivalid move')
+            return
+
+        dest_square.piece = src_square.piece
+        src_square.piece = None
+        
+        if piece.type == PieceTypeEnum.PAWN:
+            piece.is_first_move = False
+
+        self.rotate_player_turn()
