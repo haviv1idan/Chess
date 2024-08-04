@@ -11,3 +11,5 @@ ruff
 app.log
 
 games.pgn
+
+debugging.ipynb
